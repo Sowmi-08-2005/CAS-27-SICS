@@ -1,0 +1,31 @@
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+fetch(https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_OPENWEATHERMAP_API_KEY)
+  .then(response => response.json())
+  .then(data => {
+    db.collection("weatherData").add({
+      city: data.name,
+      temperature: data.main.temp, 
+      humidity: data.main.humidity,
+      windSpeed: data.wind.speed,
+      timestamp: Date.now()
+    })
+    .then(() => {
+      console.log("Weather data added to Firestore!");
+    })
+    .catch(error => {
+      console.error("Error adding document: ", error);
+    });
+  });
+
+db.collection("weatherData").get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data())
+  });
+});
