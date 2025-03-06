@@ -58,3 +58,10 @@ This project simulates an IoT-based farm monitoring system using:
 
 ## Benefits of the System:
 - **Automated Farm Management**: Minimizes human intervention by predicting
+- **Resource Optimization**: Helps in conserving water and resources by accurately predicting the needs of the crops.
+- **Data-Driven Insights**: Machine learning provides insights for better crop management and yield predictions.
+  
+---
+
+## Future Enhancement:
+
