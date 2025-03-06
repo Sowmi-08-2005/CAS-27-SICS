@@ -1,5 +1,7 @@
 # IoT-Based Farm Monitoring Simulation with AI Prediction
 
+![Farm Monitoring System](pic.jpg)
+
 ## Project Overview:
 
 This project simulates an IoT-based farm monitoring system using:
@@ -55,12 +57,4 @@ This project simulates an IoT-based farm monitoring system using:
 ---
 
 ## Benefits of the System:
-- **Automated Farm Management**: Minimizes human intervention by predicting the right time for irrigation and detecting potential issues.
-- **Resource Optimization**: Helps in conserving water and resources by accurately predicting the needs of the crops.
-- **Data-Driven Insights**: Machine learning provides insights for better crop management and yield predictions.
-  
----
-
-## Conclusion:
-
-This IoT-based farm monitoring system enables efficient and automated farm management by integrating real-time sensor data, cloud-based storage, and AI-driven predictions. The simulation allows users to gain insights into optimizing farming practices and improving crop health.
+- **Automated Farm Management**: Minimizes human intervention by predicting
