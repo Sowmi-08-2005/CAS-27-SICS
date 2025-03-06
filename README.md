@@ -63,7 +63,7 @@ This project simulates an IoT-based farm monitoring system using:
   
 ---
 
-### Future Enhancements:
+## Future Enhancements:
 
 1. **Integration of More Sensors**:
    - Incorporate additional sensors such as **pH Sensors**, **Nutrient Sensors**, and **Rainfall Sensors** to enhance data collection and provide more comprehensive insights for crop management.
