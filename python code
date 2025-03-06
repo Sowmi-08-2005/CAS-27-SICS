@@ -1,0 +1,62 @@
+import requests
+import datetime
+import matplotlib.pyplot as plt
+from shapely.geometry import Point
+from sentinelhub import WmsRequest, WcsRequest, MimeType, CRS, BBox
+
+INSTANCE_ID = 'your-instance-id'  
+CLIENT_ID = 'your-client-id'      
+CLIENT_SECRET = 'your-client-secret'  
+
+
+def fetch_ndvi(latitude, longitude, start_date, end_date):
+    
+    point = Point(longitude, latitude)
+    bbox = point.buffer(0.01).bounds 
+    bbox = BBox(bbox, crs=CRS.WGS84)
+
+   
+    wms_request = WmsRequest(
+        layer='NDVI',  
+        bbox=bbox,
+        time=(start_date, end_date),
+        width=512,
+        height=512,
+        instance_id=INSTANCE_ID,
+        image_format=MimeType.TIFF,
+    )
+
+    
+    ndvi_image = wms_request.get_data()[0]
+    return ndvi_image
+
+def fetch_precipitation(latitude, longitude, start_date, end_date):
+    API_KEY = 'your-openweathermap-api-key' 
+    url = f"http://api.openweathermap.org/data/2.5/onecall/timemachine?lat={latitude}&lon={longitude}&dt={start_date}&appid={API_KEY}"
+    response = requests.get(url).json()
+    precipitation = sum(hour['rain']['1h'] for hour in response['hourly'] if 'rain' in hour)
+    return precipitation
+
+
+def monitor_agriculture(latitude, longitude, start_date, end_date):
+    
+    ndvi_image = fetch_ndvi(latitude, longitude, start_date, end_date)
+
+   
+    precipitation = fetch_precipitation(latitude, longitude, start_date, end_date)
+
+   
+    print(f"NDVI Image Shape: {ndvi_image.shape}")
+    print(f"Total Precipitation (mm): {precipitation}")
+ 
+    plt.imshow(ndvi_image, cmap='YlGn', vmin=0, vmax=1)
+    plt.colorbar(label='NDVI')
+    plt.title('NDVI Map')
+    plt.show()
+
+latitude = 28.6139 
+longitude = 77.2090 
+start_date = int(datetime.datetime(2023, 9, 1).timestamp()) 
+end_date = int(datetime.datetime(2023, 9, 30).timestamp())  
+
+monitor_agriculture(latitude, longitude, start_date, end_date)
