@@ -1,62 +1,106 @@
-import requests
-import datetime
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from shapely.geometry import Point
-from sentinelhub import WmsRequest, WcsRequest, MimeType, CRS, BBox
+import time
+import random
 
-INSTANCE_ID = 'your-instance-id'  
-CLIENT_ID = 'your-client-id'      
-CLIENT_SECRET = 'your-client-secret'  
+# Replace these with your actual sensor readings
+def get_temperature():
+    # Simulate a temperature sensor reading
+    return random.uniform(15, 30)
 
+def get_humidity():
+    # Simulate a humidity sensor reading
+    return random.uniform(40, 80)
 
-def fetch_ndvi(latitude, longitude, start_date, end_date):
-    
-    point = Point(longitude, latitude)
-    bbox = point.buffer(0.01).bounds 
-    bbox = BBox(bbox, crs=CRS.WGS84)
+def get_soil_moisture():
+    # Simulate a soil moisture sensor reading
+    return random.uniform(10, 50)
 
-   
-    wms_request = WmsRequest(
-        layer='NDVI',  
-        bbox=bbox,
-        time=(start_date, end_date),
-        width=512,
-        height=512,
-        instance_id=INSTANCE_ID,
-        image_format=MimeType.TIFF,
-    )
+def check_temperature(temp):
+    if temp >= 20 and temp <= 25:
+        return "Optimal"
+    elif temp < 20:
+        return "Too Low"
+    else:
+        return "Too High"
 
-    
-    ndvi_image = wms_request.get_data()[0]
-    return ndvi_image
+def check_humidity(humidity):
+    if humidity >= 60 and humidity <= 70:
+        return "Optimal"
+    elif humidity < 60:
+        return "Too Low"
+    else:
+        return "Too High"
 
-def fetch_precipitation(latitude, longitude, start_date, end_date):
-    API_KEY = 'your-openweathermap-api-key' 
-    url = f"http://api.openweathermap.org/data/2.5/onecall/timemachine?lat={latitude}&lon={longitude}&dt={start_date}&appid={API_KEY}"
-    response = requests.get(url).json()
-    precipitation = sum(hour['rain']['1h'] for hour in response['hourly'] if 'rain' in hour)
-    return precipitation
+def check_soil_moisture(soil_moisture):
+    if soil_moisture >= 20 and soil_moisture <= 30:
+        return "Optimal"
+    elif soil_moisture < 20:
+        return "Too Low"
+    else:
+        return "Too High"
 
+# Create an empty dataframe to store the data
+data = pd.DataFrame(columns=['Date', 'Temperature (°C)', 'Humidity (%)', 'Soil Moisture (%)', 'Temperature Status', 'Humidity Status', 'Soil Moisture Status'])
 
-def monitor_agriculture(latitude, longitude, start_date, end_date):
-    
-    ndvi_image = fetch_ndvi(latitude, longitude, start_date, end_date)
+# Set the frequency of data collection (e.g., every 1 minute)
+frequency = 60  # in seconds
 
-   
-    precipitation = fetch_precipitation(latitude, longitude, start_date, end_date)
+while True:
+    # Get the current time
+    date = pd.to_datetime('now')
 
-   
-    print(f"NDVI Image Shape: {ndvi_image.shape}")
-    print(f"Total Precipitation (mm): {precipitation}")
- 
-    plt.imshow(ndvi_image, cmap='YlGn', vmin=0, vmax=1)
-    plt.colorbar(label='NDVI')
-    plt.title('NDVI Map')
+    # Get the current sensor readings
+    temperature = get_temperature()
+    humidity = get_humidity()
+    soil_moisture = get_soil_moisture()
+
+    # Create a new row of data
+    new_row = pd.DataFrame({
+        'Date': [date],
+        'Temperature (°C)': [temperature],
+        'Humidity (%)': [humidity],
+        'Soil Moisture (%)': [soil_moisture],
+        'Temperature Status': [check_temperature(temperature)],
+        'Humidity Status': [check_humidity(humidity)],
+        'Soil Moisture Status': [check_soil_moisture(soil_moisture)]
+    })
+
+    # Append the new row to the dataframe
+    data = pd.concat([data, new_row], ignore_index=True)
+
+    # Print the updated dataframe
+    print(data)
+
+    # Plot the data
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 3, 1)
+    plt.plot(data['Date'], data['Temperature (°C)'], label='Temperature')
+    plt.plot(data['Date'], [20] * len(data), label='Optimal Temperature', linestyle='--')
+    plt.plot(data['Date'], [25] * len(data), label='Optimal Temperature', linestyle='--')
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('Temperature (°C)')
+    plt.title('Temperature')
+
+    plt.subplot(1, 3, 2)
+    plt.plot(data['Date'], data['Humidity (%)'], label='Humidity')
+    plt.plot(data['Date'], [60] * len(data), label='Optimal Humidity', linestyle='--')
+    plt.plot(data['Date'], [70] * len(data), label='Optimal Humidity', linestyle='--')
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('Humidity (%)')
+    plt.title('Humidity')
+
+    plt.subplot(1, 3, 3)
+    plt.plot(data['Date'], data['Soil Moisture (%)'], label='Soil Moisture')
+    plt.plot(data['Date'], [20] * len(data), label='Optimal Soil Moisture', linestyle='--')
+    plt.plot(data['Date'], [30] * len(data), label='Optimal Soil Moisture', linestyle='--')
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('Soil Moisture (%)')
+    plt.title('Soil Moisture')
+
+    plt.tight_layout()
     plt.show()
-
-latitude = 28.6139 
-longitude = 77.2090 
-start_date = int(datetime.datetime(2023, 9, 1).timestamp()) 
-end_date = int(datetime.datetime(2023, 9, 30).timestamp())  
-
-monitor_agriculture(latitude, longitude, start_date, end_date)
